@@ -31,7 +31,12 @@ app.use('/', require('morgan')(function (tokens, req, res) {
 }));
 
 app.get('/', function(req,res,next){
-	res.render('index');
+	var page = models.Page;
+	page.findAll({
+		attributes: ['title', 'urlTitle']
+	}).then(function(result){
+		res.render('index', {results:result})
+	})
 })
 
 app.use(urlEncodedParser);

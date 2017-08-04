@@ -6,3 +6,11 @@ body {
 a {
   color: #00B7FF;
 }
+
+.content {
+	margin-top:3em;
+}
+
+.posts {
+	padding:0 17px;
+}

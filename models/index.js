@@ -15,9 +15,6 @@ const Page = db.define('page', {
 	},
 	urlTitle: {
 		type: Sequelize.STRING,
-		validate: {
-			isUrl: true
-		},
 		allowNull: false
 	},
 	content: {
@@ -32,23 +29,26 @@ const Page = db.define('page', {
         defaultValue: Sequelize.NOW
     }
 }, {
+	hooks: {
+  		beforeValidate: function(page){
+  			function generateUrlTitle (title) {
+			  if (title) {
+			    // Removes all non-alphanumeric characters from title
+			    // And make whitespace underscore
+			    return title.replace(/\s+/g, '_').replace(/\W/g, '');
+			  } else {
+			    // Generates random 5 letter string
+			    return Math.random().toString(36).substring(2, 7);
+			  }
+			}
+			page.urlTitle = generateUrlTitle(page.title);
+  		}
+  	},
 	getterMethods: {
 	    route() {
-	      return '/wikie/' + this.urlTitle
+	      return '/wiki/' + this.urlTitle
 	    }
-  	}/*,
-  	hooks: {
-  		beforeValidate: function generateUrlTitle (this.title) {
-		  if (title) {
-		    // Removes all non-alphanumeric characters from title
-		    // And make whitespace underscore
-		    return this.urlTitle = title.replace(/\s+/g, '_').replace(/\W/g, '');
-		  } else {
-		    // Generates random 5 letter string
-		    return this.urlTitle = Math.random().toString(36).substring(2, 7);
-		  }
-		}
-  	}*/
+  	}
 })
 
 const User = db.define('user', {
@@ -70,6 +70,8 @@ const User = db.define('user', {
 		allowNull: false
 	}
 })
+
+Page.belongsTo(User, {as:'author'});
 
 module.exports = {
   db,

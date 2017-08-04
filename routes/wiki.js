@@ -12,15 +12,39 @@ router.get('/add', function(req,res,next){
 })
 
 router.post('/', function(req,res,next){
-	var page = Page.build({
-		title: req.body.title,
-		content:req.body.content,
-		status:req.body.status
-	});
-	page.save()
-		.then(function(){
-			res.redirect('/');
-		})
+	User.findOrCreate({
+		where: {name: req.body.name, email:req.body.email}
+	}).then(function(results){
+		var user = results[0];
+
+		var page = Page.build({
+			title: req.body.title,
+			content:req.body.content,
+			status:req.body.status
+		});
+
+		return page.save()
+			.then(function(result){
+				return result.setAuthor(user);
+			})
+	})
+	.then(function(result) {
+	  res.redirect(result.route);
+	}).catch(console.error)
+})
+
+router.get('/:url', function(req,res,next){
+	var url = req.params.url;
+	Page.findOne({
+		where: {
+			urlTitle: url
+		}
+	})
+	.then(function(result){
+		res.render('wikipage', {page:result})
+	})
+	.catch(next);
+
 })
 
 module.exports = router;
