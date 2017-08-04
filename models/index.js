@@ -27,7 +27,11 @@ const Page = db.define('page', {
 	date: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW
-    }
+    },
+	tags: {
+		type: Sequelize.ARRAY(Sequelize.TEXT),
+		defaultValue: []
+	}
 }, {
 	hooks: {
   		beforeValidate: function(page){
@@ -41,7 +45,26 @@ const Page = db.define('page', {
 			    return Math.random().toString(36).substring(2, 7);
 			  }
 			}
+			function joinString(tags){
+				return tags.split(' ');
+			}
 			page.urlTitle = generateUrlTitle(page.title);
+			page.tags = joinString(String(page.tags));
+  		},
+
+  		afterUpdate: function(page){
+  			function generateUrlTitle (title) {
+			  if (title) {
+			    // Removes all non-alphanumeric characters from title
+			    // And make whitespace underscore
+			    return title.replace(/\s+/g, '_').replace(/\W/g, '');
+			  } else {
+			    // Generates random 5 letter string
+			    return Math.random().toString(36).substring(2, 7);
+			  }
+			}
+			page.urlTitle = generateUrlTitle(page.title);
+			console.log('updated--' +page)
   		}
   	},
 	getterMethods: {

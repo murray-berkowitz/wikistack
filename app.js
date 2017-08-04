@@ -39,8 +39,8 @@ app.get('/', function(req,res,next){
 	})
 })
 
+app.use(require('method-override')('_method'));
 app.use(urlEncodedParser);
 app.use('/', routes);
 app.use(express.static('public'));
-
 module.exports = {port};

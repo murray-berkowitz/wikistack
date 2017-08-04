@@ -20,7 +20,8 @@ router.post('/', function(req,res,next){
 		var page = Page.build({
 			title: req.body.title,
 			content:req.body.content,
-			status:req.body.status
+			status:req.body.status,
+			tags:req.body.tags
 		});
 
 		return page.save()
@@ -33,6 +34,23 @@ router.post('/', function(req,res,next){
 	}).catch(console.error)
 })
 
+router.put('/:url/edit', function(req,res,next){
+	Page.findOne({
+		where: {urlTitle: req.params.url}
+	}).then(function(page){
+		page.updateAttributes({
+			title : req.body.title,
+			content : req.body.content,
+			tags : req.body.tags,
+			status : req.body.status
+		})
+		.then(function(result){
+			return res.redirect(result.route);
+		})
+	})
+	.catch(console.error)
+})
+
 router.get('/:url', function(req,res,next){
 	var url = req.params.url;
 	Page.findOne({
@@ -41,10 +59,22 @@ router.get('/:url', function(req,res,next){
 		}
 	})
 	.then(function(result){
-		res.render('wikipage', {page:result})
+		console.log(result);
+		result.getAuthor()
+		.then(function(user){
+			return res.render('wikipage', {page:result, user:user})			
+		})
 	})
 	.catch(next);
 
+})
+
+router.get('/:url/edit', function(req,res,next){
+	Page.findOne({
+		where: {urlTitle:req.params.url}
+	}).then(function(page){
+		return res.render('editpage', {page});
+	})
 })
 
 module.exports = router;

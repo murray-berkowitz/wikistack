@@ -18,7 +18,7 @@ router.get('/:id', function(req,res,next){
 			where: {authorId: req.params.id}
 		})
 	]).then(function(results){
-		console.log(results[0]);
+		//console.log(results[0]);
 		res.render('user', {user:results[0], pages:results[1]})
 	})
 })
